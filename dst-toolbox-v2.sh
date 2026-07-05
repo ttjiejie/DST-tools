@@ -3759,25 +3759,40 @@ auto_init() {
     print_success "SteamCMD 安装完成"
 
     echo ""
-    print_info "步骤 4/6: 下载 DST 服务器 (约 3-5GB)..."
+    print_info "步骤 4/6: 下载饥荒专用服务端（约 3-5GB，取决于网速）..."
     print_warn "下载时间取决于网络速度，请耐心等待"
     echo ""
 
+    # 正确 SteamCMD 执行顺序：先指定安装目录，再匿名登录更新
     /root/steamcmd/steamcmd.sh \
-        +force_install_dir "/root/Steam/steamapps/common/Don't Starve Together Dedicated Server" \
+        +force_install_dir "$SERVER_DIR" \
         +login anonymous \
         +app_update 343050 validate \
         +quit
 
-    # 重新检测路径
+    # 自动扫描刷新服务端路径、二进制程序
     detect_server_dir
     detect_binary
     init_paths
 
-    if check_server_installed; then
-        print_success "DST 服务器下载完成"
+    # 校验二进制文件是否下载成功，失败自动重试一次
+    if [ -z "$DEDICATED_SERVER_BINARY" ] || [ ! -x "$DEDICATED_SERVER_BINARY" ]; then
+        print_warn "首次下载未完成，自动重试下载一次"
+        /root/steamcmd/steamcmd.sh \
+            +force_install_dir "$SERVER_DIR" \
+            +login anonymous \
+            +app_update 343050 validate \
+            +quit
+        detect_server_dir
+        detect_binary
+        init_paths
+    fi
+
+    # 最终校验，给出小白易懂提示
+    if [ -z "$DEDICATED_SERVER_BINARY" ] || [ ! -x "$DEDICATED_SERVER_BINARY" ]; then
+        print_error "服务端下载失败，请检查服务器外网网络后重新执行初始化"
     else
-        print_warn "下载可能未完成，请检查网络后重试"
+        print_success "饥荒服务端下载安装完成，目录：$SERVER_DIR"
     fi
 
     echo ""
@@ -3810,6 +3825,13 @@ EOF
     sysctl -p /etc/sysctl.d/99-dst-network.conf
 
     print_success "网络优化完成"
+
+    echo ""
+    print_info "创建模组和集群导入目录..."
+    mkdir -p "$MOD_IMPORT_DIR"
+    mkdir -p "$CLUSTER_IMPORT_DIR"
+    print_success "模组仓库目录: $MOD_IMPORT_DIR"
+    print_success "集群导入目录: $CLUSTER_IMPORT_DIR"
 
     echo ""
     echo -e "${GREEN}╔══════════════════════════════════════╗${NC}"
