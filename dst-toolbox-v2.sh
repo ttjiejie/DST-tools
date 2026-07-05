@@ -3764,8 +3764,8 @@ auto_init() {
     echo ""
 
     /root/steamcmd/steamcmd.sh \
-        +login anonymous \
         +force_install_dir "/root/Steam/steamapps/common/Don't Starve Together Dedicated Server" \
+        +login anonymous \
         +app_update 343050 validate \
         +quit
 
@@ -3853,8 +3853,8 @@ update_server() {
     echo ""
 
     /root/steamcmd/steamcmd.sh \
-        +login anonymous \
         +force_install_dir "$SERVER_DIR" \
+        +login anonymous \
         +app_update 343050 validate \
         +quit
 
