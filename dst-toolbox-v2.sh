@@ -2978,7 +2978,9 @@ batch_import_mods() {
         # 检查完整性
         local src_dir="${rest#*:}"
         local status="${GREEN}完整${NC}"
-        if ! check_mod_complete "$src_dir"; then
+        if check_mod_complete "$src_dir"; then
+            :
+        else
             case $? in
                 1) status="${RED}缺少 modinfo.lua${NC}" ;;
                 2) status="${RED}缺少 modmain.lua${NC}" ;;
@@ -3015,7 +3017,9 @@ batch_import_mods() {
         local target_dir="$MODS_DIR/$target_name"
 
         # 完整性检查
-        if ! check_mod_complete "$src_dir"; then
+        if check_mod_complete "$src_dir"; then
+            :
+        else
             local reason=""
             case $? in
                 1) reason="缺少 modinfo.lua" ;;
@@ -3151,7 +3155,9 @@ list_repo_mods() {
 
         # 完整性
         local status="${GREEN}完整${NC}"
-        if ! check_mod_complete "$dir"; then
+        if check_mod_complete "$dir"; then
+            :
+        else
             case $? in
                 1) status="${RED}缺少 modinfo.lua${NC}" ;;
                 2) status="${RED}缺少 modmain.lua${NC}" ;;
